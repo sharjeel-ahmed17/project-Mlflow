@@ -14,7 +14,7 @@ mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
 app = FastAPI()
 
 # MLflow Tracking URI
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+# mlflow.set_tracking_uri("sqlite:///mlflow.db")
 
 model = mlflow.sklearn.load_model(
     model_uri="models:/Ship_Fuel_Consumption_Model/1"
