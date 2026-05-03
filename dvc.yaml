@@ -27,11 +27,8 @@ stages:
     params:
       - model.cv
       - model.scoring
-    outs:
-      - mlruns/
 
   best_model:
     cmd: python src/best_model.py
     deps:
       - src/best_model.py
-      - mlruns/
