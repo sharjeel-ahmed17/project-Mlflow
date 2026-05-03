@@ -2,3 +2,6 @@
     remote = origin
 ['remote "origin"']
     url = https://dagshub.com/sharjeel-ahmed17/project-Mlflow.dvc
+    auth = basic
+    user = sharjeel-ahmed17
+    password = 93a54aae707cd7ed2df8aed1e66098e2468c78f2

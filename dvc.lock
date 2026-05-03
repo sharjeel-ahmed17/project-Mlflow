@@ -5,24 +5,24 @@ stages:
     deps:
     - path: src/data_ingestion.py
       hash: md5
-      md5: 1448c569bfb7e2555ce58c475e435809
-      size: 851
+      md5: e5fb4890a464a97caa3d22420d6038cc
+      size: 877
     outs:
     - path: src/data/raw/ship_fuel_raw.csv
       hash: md5
-      md5: 94729d8e0db5c6cc6f43da86fcdb07de
-      size: 120809
+      md5: 2bb191a6c56c413f9c61cfa736bb6ec7
+      size: 122250
   preprocessing:
     cmd: python src/preprocessing.py
     deps:
     - path: src/data/raw/ship_fuel_raw.csv
       hash: md5
-      md5: 94729d8e0db5c6cc6f43da86fcdb07de
-      size: 120809
+      md5: 2bb191a6c56c413f9c61cfa736bb6ec7
+      size: 122250
     - path: src/preprocessing.py
       hash: md5
-      md5: 3454580b51aca36bd646558f13f542ce
-      size: 2346
+      md5: 09dcaa289a6631e1676728ee9b622c82
+      size: 2411
     params:
       params.yaml:
         data.random_state: 30
@@ -30,8 +30,8 @@ stages:
     outs:
     - path: src/data/processed/
       hash: md5
-      md5: aa285e837770bef601584d2e369d7925.dir
-      size: 41695
+      md5: 06c15eb8a6277422b8111456aeee7c97.dir
+      size: 43137
       nfiles: 4
     - path: src/models/preprocessor.pkl
       hash: md5
@@ -42,32 +42,21 @@ stages:
     deps:
     - path: src/data/processed/
       hash: md5
-      md5: aa285e837770bef601584d2e369d7925.dir
-      size: 41695
+      md5: 06c15eb8a6277422b8111456aeee7c97.dir
+      size: 43137
       nfiles: 4
     - path: src/train.py
       hash: md5
-      md5: 00d4213bcb592e44029a06c00788f90b
-      size: 4359
+      md5: a833b87e5ff33371b2cbb374da0be2e5
+      size: 4491
     params:
       params.yaml:
         model.cv: 7
         model.scoring: r2
-    outs:
-    - path: mlruns/
-      hash: md5
-      md5: 0899f17c16629641023b88712f3871ae.dir
-      size: 731689
-      nfiles: 20
   best_model:
     cmd: python src/best_model.py
     deps:
-    - path: mlruns/
-      hash: md5
-      md5: 0899f17c16629641023b88712f3871ae.dir
-      size: 731689
-      nfiles: 20
     - path: src/best_model.py
       hash: md5
-      md5: 94783877914d5d5a13e2467c6ebddd69
-      size: 1143
+      md5: 9f5c7c2ffb2663eaf741bd9ec81e37a1
+      size: 2412
