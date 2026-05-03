@@ -56,7 +56,7 @@ stages:
     outs:
     - path: mlruns/
       hash: md5
-      md5: a24462a520d0aee321568eb6ff7141e1.dir
+      md5: 0899f17c16629641023b88712f3871ae.dir
       size: 731689
       nfiles: 20
   best_model:
@@ -64,7 +64,7 @@ stages:
     deps:
     - path: mlruns/
       hash: md5
-      md5: a24462a520d0aee321568eb6ff7141e1.dir
+      md5: 0899f17c16629641023b88712f3871ae.dir
       size: 731689
       nfiles: 20
     - path: src/best_model.py
