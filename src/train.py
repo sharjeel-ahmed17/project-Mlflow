@@ -1,0 +1,131 @@
+import numpy as np
+import pandas as pd
+import scipy.sparse as sp
+import mlflow
+import mlflow.sklearn
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.model_selection import GridSearchCV
+import yaml
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  
+
+# Set MLflow Tracking URI from environment variable (username, uri, password) of daghub for remote storage
+mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
+
+
+# MLflow Tracking URI
+mlflow.set_tracking_uri("sqlite:///mlflow.db") 
+
+# Params load 
+params = yaml.safe_load(open("params.yaml")) 
+
+
+def train():
+    x_train = sp.load_npz("src/data/processed/x_train.npz")
+    x_test  = sp.load_npz("src/data/processed/x_test.npz")
+
+    # data squeeze (2D to 1D)
+    y_train = pd.read_csv("src/data/processed/y_train.csv").squeeze()
+    y_test  = pd.read_csv("src/data/processed/y_test.csv").squeeze()
+    print(f"Train: {x_train.shape} | Test: {x_test.shape}")
+
+    mlflow.set_experiment("Ship_Fuel_Consumption")
+
+    models = {
+        "LinearRegression": {
+            "model": LinearRegression(),
+            "params": {}
+        },
+        "DecisionTree": {
+            "model": DecisionTreeRegressor(random_state=42),
+            "params": {
+                "max_depth": [3, 5, 7],
+                "min_samples_split": [10, 20, 30],
+                "min_samples_leaf": [5, 10, 15]
+            }
+        },
+        "RandomForest": {
+            "model": RandomForestRegressor(random_state=42),
+            "params": {
+                "n_estimators": [50, 100],
+                "max_depth": [3, 5, 7],
+                "min_samples_split": [10, 20],
+                "min_samples_leaf": [5, 10]
+            }
+        },
+        "GradientBoosting": {
+            "model": GradientBoostingRegressor(random_state=42),
+            "params": {
+                "n_estimators": [50, 100],
+                "learning_rate": [0.05, 0.1],
+                "max_depth": [2, 3],
+                "subsample": [0.8, 1.0],
+                "min_samples_leaf": [5, 10]
+            }
+        }
+    }
+
+    for model_name, config in models.items():
+        print(f"\nTraining {model_name}...")
+
+        with mlflow.start_run(run_name=model_name):
+
+            if config["params"]:
+                grid_search = GridSearchCV(
+                    config["model"],
+                    config["params"],
+
+                    #cv=5
+                    #scoring='r2'
+                    cv=params['model']['cv'],
+                    scoring=params['model']['scoring'],
+                    n_jobs=-1
+                )
+                grid_search.fit(x_train, y_train)
+                best_model  = grid_search.best_estimator_
+                best_params = grid_search.best_params_
+            else:
+                best_model = config["model"]
+                best_model.fit(x_train, y_train)
+                best_params = {}
+
+            y_pred       = best_model.predict(x_test)
+            y_train_pred = best_model.predict(x_train)
+
+            test_r2  = r2_score(y_test, y_pred)
+            train_r2 = r2_score(y_train, y_train_pred)
+            rmse     = np.sqrt(mean_squared_error(y_test, y_pred))
+            mae      = mean_absolute_error(y_test, y_pred)
+
+            mlflow.log_param("model_name", model_name)
+            mlflow.log_params(best_params)
+            mlflow.log_metric("Train_R2", train_r2)
+            mlflow.log_metric("Test_R2", test_r2)
+            mlflow.log_metric("RMSE", rmse)
+            mlflow.log_metric("MAE", mae)
+            mlflow.sklearn.log_model(best_model, artifact_path="model")
+
+            print(f"Train R2  : {train_r2:.4f}")
+            print(f"Test R2   : {test_r2:.4f}")
+            print(f"RMSE      : {rmse:.4f}")
+            print(f"MAE       : {mae:.4f}")
+            print(f"Best Params: {best_params}")
+
+            diff = train_r2 - test_r2
+            if diff > 0.1:
+                print(f"OVERFIT — Difference: {diff:.4f}")
+            elif test_r2 < 0.7:
+                print(f"UNDERFIT — Test R2: {test_r2:.4f}")
+            else:
+                print("GOOD FIT!")
+
+    print("\nAll models trained!")
+
+
+if __name__ == "__main__":
+    train()

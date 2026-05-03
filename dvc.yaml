@@ -1,0 +1,37 @@
+stages:
+
+  data_ingestion:
+    cmd: python src/data_ingestion.py
+    deps:
+      - src/data_ingestion.py
+    outs:
+      - src/data/raw/ship_fuel_raw.csv
+
+  preprocessing:
+    cmd: python src/preprocessing.py
+    deps:
+      - src/preprocessing.py  
+      - src/data/raw/ship_fuel_raw.csv
+    params:
+      - data.test_size
+      - data.random_state
+    outs:
+      - src/data/processed/
+      - src/models/preprocessor.pkl
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - src/train.py
+      - src/data/processed/
+    params:
+      - model.cv
+      - model.scoring
+    outs:
+      - mlruns/
+
+  best_model:
+    cmd: python src/best_model.py
+    deps:
+      - src/best_model.py
+      - mlruns/
