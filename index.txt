@@ -1,0 +1,8 @@
+
+  Build and run again:
+  docker build -t ship .
+  docker run -p 8000:8000 --env-file .env ship
+  If this works, you know 100% that the problem is just the MLflow Model Name/Registry, not Docker.
+
+register model
+Ship_Fuel_Consumption_Model
