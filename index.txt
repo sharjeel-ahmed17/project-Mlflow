@@ -6,3 +6,8 @@
 
 register model
 Ship_Fuel_Consumption_Model
+
+docker tag ship sharjeelahmed017/ship:latest
+
+
+
