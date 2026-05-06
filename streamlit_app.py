@@ -1,6 +1,11 @@
 import streamlit as st
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv() 
 
+
+API_URL = os.getenv('API_URL', 'http://localhost:8000')
 st.title("Ship Fuel Consumption Prediction")
 st.write("Enter ship details to predict fuel consumption")
 
@@ -30,7 +35,7 @@ engine_efficiency = st.number_input("Engine Efficiency (%)")
 # Predict button
 if st.button("Predict"):
     response = requests.post(
-        "http://localhost:8000/predict",
+        f"{API_URL}/predict",
         params={
             "ship_type": ship_type,
             "month": month,

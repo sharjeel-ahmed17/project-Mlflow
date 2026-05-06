@@ -11,6 +11,8 @@ load_dotenv()
 # Set MLflow Tracking URI from environment variable (username, uri, password) of daghub for remote storage
 mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
 
+
+
 app = FastAPI()
 
 # MLflow Tracking URI
