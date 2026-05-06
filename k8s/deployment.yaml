@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ship-fuel-prediction-deployment
+  labels:
+    app: ship-fuel-prediction
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ship-fuel-prediction
+  template:
+    metadata:
+      labels:
+        app: ship-fuel-prediction
+    spec:
+      containers:
+      - name: ship-fuel-prediction
+        image: sharjeelahmed017/ship:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-secrets
+              key: tracking_uri
+        - name: MLFLOW_TRACKING_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-secrets
+              key: username
+        - name: MLFLOW_TRACKING_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-secrets
+              key: password
